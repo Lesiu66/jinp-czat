@@ -28,9 +28,14 @@ set(SOURCES
 
 add_executable(main ${SOURCES})
 
-target_include_directories(main PUBLIC include)
+target_include_directories(CypherChat PUBLIC include)
 
-target_link_libraries(main PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(CypherChat
+    PRIVATE
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    Threads::Threads
+)
 
 enable_testing()
 include(CTest)
@@ -41,10 +46,12 @@ add_executable(test_chat
     tests/test.main.cpp)
 
 target_link_libraries(test_chat
+    PRIVATE
     GTest::gtest
     GTest::gtest_main
     OpenSSL::SSL
     OpenSSL::Crypto
+    Threads::Threads
 )
 
 include(GoogleTest)
