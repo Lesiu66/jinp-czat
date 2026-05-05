@@ -1,10 +1,10 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include <string>
+#include "User.hpp"
+#include "CryptoManager.hpp"
 
-class User;
-class CryptoManager;
+#include <string>
 
 class Client {
 private:
@@ -16,6 +16,7 @@ public:
     Client(int socket, User* user);
 
     void connectToServer();
+    
     void sendMessage(const std::string& message);
     void receiveMessage(const std::string& message);
 
@@ -24,4 +25,4 @@ public:
 
 };
 
-#endif // CLIENT_HPP
+#endif
