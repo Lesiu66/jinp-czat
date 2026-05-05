@@ -41,7 +41,7 @@ find_package(GTest REQUIRED)
 include(GoogleTest)
 
 add_executable(test_chat
-    tests/test.main.cpp
+    tests/main_test.cpp
 )
 
 target_link_libraries(test_chat

@@ -13,6 +13,6 @@ public:
     void forwardMessage();
 private:
     std::vector<Client*> clientsList;
-}
+};
 
 #endif // SERVER_HPP

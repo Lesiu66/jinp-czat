@@ -3,7 +3,7 @@
 
 class User {
 public:
-    User(int ID, std::string Username): id(ID), username(Username) {generateKeys()};
+    User(int ID, std::string Username): id(ID), username(Username) {generateKeys();}
 
     void generateKeys();
 private:
