@@ -1,16 +1,20 @@
 #include "Client.hpp"
-#include "User.hpp"
-#include "CryptoManager.hpp"
 
 #include <iostream>
 #include <string>
+#include <thread>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 
-Client::Client(int socket, User* user)
-    : socket(socket), user(user), crypto(nullptr) {}
+Client::Client() {
+    clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+}
+
+Client::~Client() {
+    close(clientSocket);
+}
 
 void Client::connectToServer() {
     sockaddr_in serverAddr{};
@@ -19,37 +23,44 @@ void Client::connectToServer() {
 
     inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
 
-    if (connect(socket, (sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+    if (connect(clientSocket,
+                (sockaddr*)&serverAddr,
+                sizeof(serverAddr)) < 0) {
+
         std::cerr << "Connection failed\n";
         return;
     }
 
-    std::cout << user->getUsername() << " connected to server\n";
+    std::cout << "Connected to server\n";
 }
 
 void Client::sendMessage(const std::string& message) {
-    std::string encrypted = encryptMessage(message);
-
-    send(socket, encrypted.c_str(), encrypted.size(), 0);
-
-    std::cout << "Sent: " << encrypted << std::endl;
+    send(clientSocket,
+         message.c_str(),
+         message.size(),
+         0);
 }
 
-void Client::receiveMessage() {
-    char buffer[1024] = {0};
+void Client::startReceiving() {
 
-    int bytes = recv(socket, buffer, sizeof(buffer), 0);
+    std::thread([this]() {
 
-    if (bytes > 0) {
-        std::string message(buffer, bytes);
-        std::cout << "Received: " << decryptMessage(message) << std::endl;
-    }
-}
+        while (true) {
 
-std::string Client::encryptMessage(const std::string& message) {
-    return crypto ? crypto->encryptAES(message) : message;
-}
+            char buffer[1024] = {0};
 
-std::string Client::decryptMessage(const std::string& message) {
-    return crypto ? crypto->decryptAES(message) : message;
+            int bytes = recv(clientSocket,
+                             buffer,
+                             sizeof(buffer),
+                             0);
+
+            if (bytes <= 0)
+                break;
+
+            std::cout << "\nReceived: "
+                      << std::string(buffer, bytes)
+                      << std::endl;
+        }
+
+    }).detach();
 }

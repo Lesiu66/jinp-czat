@@ -13,29 +13,45 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
 
-set(SOURCES
-    src/main.cpp
+# SERVER
+
+set(SERVER_SOURCES
+    src/server_main.cpp
     src/Server.cpp
-    src/Client.cpp
-    src/User.cpp
-    src/Message.cpp
-    src/MessageHistory.cpp
-    src/CryptoManager.cpp
 )
 
-add_executable(CypherChat ${SOURCES})
+add_executable(server ${SERVER_SOURCES})
 
-target_include_directories(CypherChat PUBLIC include)
+target_include_directories(server PUBLIC include)
 
-target_link_libraries(CypherChat
+target_link_libraries(server
     PRIVATE
     OpenSSL::SSL
     OpenSSL::Crypto
     Threads::Threads
 )
 
+# CLIENT
+
+set(CLIENT_SOURCES
+    src/client_main.cpp
+    src/Client.cpp
+)
+
+add_executable(client ${CLIENT_SOURCES})
+
+target_include_directories(client PUBLIC include)
+
+target_link_libraries(client
+    PRIVATE
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    Threads::Threads
+)
+
+# TESTS
+
 enable_testing()
-include(CTest)
 
 find_package(GTest REQUIRED)
 include(GoogleTest)

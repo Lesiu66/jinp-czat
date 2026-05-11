@@ -2,27 +2,21 @@
 #define CLIENT_HPP
 
 #include <string>
-
-class User;
-class CryptoManager;
+#include <thread>
 
 class Client {
 private:
-    int socket;
-    User* user;
-    CryptoManager* crypto;
+    int clientSocket;
 
 public:
-    Client(int socket, User* user);
+    Client();
     ~Client();
 
     void connectToServer();
 
     void sendMessage(const std::string& message);
-    void receiveMessage();
 
-    std::string encryptMessage(const std::string& message);
-    std::string decryptMessage(const std::string& message);
+    void startReceiving();
 };
 
 #endif
