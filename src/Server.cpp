@@ -115,3 +115,15 @@ void Server::forwardMessage(int senderSocket,
 
     send(target, msg.c_str(), msg.size(), 0);
 }
+
+int Server::findPartner(int clientId, const std::vector<int>& currentClients) {
+    if (currentClients.size() < 2) return -1;
+
+    for (size_t i = 0; i < currentClients.size(); ++i) {
+        if (currentClients[i] == clientId) {
+            if (i % 2 == 0 && i + 1 < currentClients.size()) return currentClients[i+1];
+            if (i % 2 != 0) return currentClients[i-1];
+        }
+    }
+    return -1;
+}

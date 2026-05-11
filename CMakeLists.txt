@@ -57,8 +57,13 @@ find_package(GTest REQUIRED)
 include(GoogleTest)
 
 add_executable(test_chat
-    tests/main_test.cpp
+    tests/server_test.cpp
+    tests/client_test.cpp
+    src/Server.cpp
+    src/Client.cpp
 )
+
+target_include_directories(test_chat PUBLIC include)
 
 target_link_libraries(test_chat
     PRIVATE
