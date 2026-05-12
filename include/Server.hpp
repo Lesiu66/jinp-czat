@@ -12,8 +12,6 @@ public:
 
     void start();
 
-    int findPartner(int clientId, const std::vector<int>& currentClients);
-
 private:
     int serverSocket;
 
