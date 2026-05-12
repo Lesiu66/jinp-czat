@@ -1,34 +1,52 @@
 #include <gtest/gtest.h>
 #include "Server.hpp"
 
-TEST(ServerLogicTest, OneClient) {
-    Server s;
-    std::vector<int> clients = {101};
-    
-    int result = s.findPartner(101, clients);
-    
-    EXPECT_EQ(result, -1);
+#include <thread>
+#include <chrono>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+static int connectClient()
+{
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+
+    sockaddr_in addr{};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(8080);
+    inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
+
+    connect(sock, (sockaddr*)&addr, sizeof(addr));
+    return sock;
 }
 
-TEST(ServerLogicTest, ValidPair) {
-    Server s;
-    std::vector<int> clients = {101, 102};
-    
-    int partnerOfFirst = s.findPartner(101, clients);
-    int partnerOfSecond = s.findPartner(102, clients);
-    
-    EXPECT_EQ(partnerOfFirst, 102);
-    EXPECT_EQ(partnerOfSecond, 101);
-}
+TEST(ServerPairMapTest, TwoClientsArePaired)
+{
+    Server server;
 
-TEST(ServerLogicTest, OddClients) {
-    Server s;
-    std::vector<int> ids = {1, 2, 3};
-    EXPECT_EQ(s.findPartner(1, ids), 2);
-    EXPECT_EQ(s.findPartner(3, ids), -1);
-}
+    std::thread t([&]() {
+        server.start();
+    });
 
-TEST(ServerLogicTest, Empty) {
-    Server s;
-    EXPECT_EQ(s.findPartner(99, {}), -1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+    int a = connectClient();
+    int b = connectClient();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+    const char* msg = "hello";
+    send(a, msg, 5, 0);
+
+    char buffer[1024];
+    int bytes = recv(b, buffer, sizeof(buffer), 0);
+
+    std::string received(buffer, bytes);
+
+    EXPECT_EQ(received, "hello");
+
+    close(a);
+    close(b);
+
+    t.detach();
 }
