@@ -9,10 +9,10 @@ class MessageHistory {
 public:
     void addMessage(Message msg);
     std::vector<Message> getHistory();
-    void saveToFile(&std::ostream);
-    void loadFromFile(&std::istream);
+    void saveToFile(std::ostream& file);
+    void loadFromFile(std::istream& file);
 private:
-    std::vector<Message>;
+    std::vector<Message> history;
 };
 
 #endif // MESSAGEHISTORY_HPP

@@ -1,6 +1,8 @@
 #ifndef USER_HPP
 #define USER_HPP
 
+#include <string>
+
 class User {
 public:
     User(int ID, std::string Username): id(ID), username(Username) {generateKeys();}

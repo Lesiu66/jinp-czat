@@ -2,6 +2,7 @@
 #define MESSAGE_HPP
 
 #include <vector>
+#include <string>
 
 class Message {
 public:

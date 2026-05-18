@@ -2,6 +2,7 @@
 #define CRYPTOMANAGER_HPP
 
 #include <vector>
+#include <string>
 
 class CryptoManager {
 public:
@@ -12,6 +13,6 @@ public:
     std::string decryptAES(std::vector<unsigned char> msg);
 private:
 
-}
+};
 
 #endif // CRYPTOMANAGER_HPP
