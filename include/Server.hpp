@@ -1,18 +1,28 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include <unordered_map>
 #include <vector>
-#include "Client.hpp"
+#include <string>
 
 class Server {
 public:
-    Server(std::vector<Client*> list): clientsList(list) {};
+    Server();
+    ~Server();
 
     void start();
-    void acceptClient(Client client);
-    void forwardMessage();
+
 private:
-    std::vector<Client*> clientsList;
+    int serverSocket;
+
+    std::vector<int> clients;
+
+    std::unordered_map<int, int> pairMap;
+
+    void acceptClients();
+    void handleClient(int clientSocket);
+    void forwardMessage(int senderSocket, const std::string& msg);
+    void tryPairClients();
 };
 
-#endif // SERVER_HPP
+#endif
