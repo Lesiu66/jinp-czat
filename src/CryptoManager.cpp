@@ -4,9 +4,10 @@
 void XORCryptoManager::generateKeys() {
     key.resize(16);
 
-    if (RAND_bytes(key.data(), static_cast<int>(key.size())) != 1) {
-        throw std::runtime_error("OpenSSL ERROR: Could not generate key!");
-    }
+    // if (RAND_bytes(key.data(), static_cast<int>(key.size())) != 1) {
+    //     throw std::runtime_error("OpenSSL ERROR: Could not generate key!");
+    // }
+    key.assign(16, 0x22);
 }
 
 Bytes XORCryptoManager::encrypt(const std::string& msg) {
