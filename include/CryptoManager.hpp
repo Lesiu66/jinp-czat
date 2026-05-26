@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <openssl/rand.h>
 
 using Bytes = std::vector<uint8_t>;
 
@@ -24,6 +27,15 @@ protected:
     std::string bytesToString(const Bytes& bytes) const {
         return std::string(bytes.begin(), bytes.end());
     }
+};
+
+class XORCryptoManager : public CryptoManager {
+public:
+    void generateKeys() override;
+    Bytes encrypt(const std::string& msg) override;
+    std::string decrypt(const Bytes& msg) override;
+private:
+    Bytes key;
 };
 
 #endif // CRYPTOMANAGER_HPP
