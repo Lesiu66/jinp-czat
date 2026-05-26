@@ -8,9 +8,9 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-Client::Client(User u) {
+Client::Client(std::unique_ptr<User> u) {
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);
-    user = u;
+    user = std::move(u);
 }
 
 Client::~Client() {
@@ -36,9 +36,9 @@ void Client::connectToServer() {
 }
 
 void Client::sendMessage(const std::string& rawMessage) {
-    std::vector<uint8_t> msg = user.encryptData(rawMessage);
+    std::vector<uint8_t> msg = user->encryptData(rawMessage);
     send(clientSocket,
-         msg,
+         &msg,
          msg.size(),
          0);
 }
@@ -49,17 +49,18 @@ void Client::startReceiving() {
 
         while (true) {
 
-            char buffer[1024] = {0};
+            std::vector<uint8_t> buffer;
+            buffer.resize(1024);
 
             int bytes = recv(clientSocket,
-                             buffer,
+                             &buffer,
                              sizeof(buffer),
                              0);
 
             if (bytes <= 0)
                 break;
 
-            std::string msg = user.decryptData(buffer);
+            std::string msg = user->decryptData(buffer);
 
             std::cout << "\nReceived: "
                       << msg

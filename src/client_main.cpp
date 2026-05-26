@@ -8,7 +8,8 @@ int main() {
     std::string username;
     std::cout << "Enter username:\n";
     std::cin >> username;
-    Client client(User(rand(), username, std::make_unique<CryptoManager>(XORCryptoManager())));
+    Client client(std::make_unique<User>(User(rand(), username, std::make_unique<XORCryptoManager>(XORCryptoManager()))));
+    client.user->generateUserKey();
 
     client.connectToServer();
     client.startReceiving();

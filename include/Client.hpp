@@ -3,15 +3,16 @@
 
 #include <string>
 #include <thread>
+#include <memory>
 #include "User.hpp"
 
 class Client {
 private:
     int clientSocket;
-    User user;
 
 public:
-    Client(User u);
+    std::unique_ptr<User> user;
+    Client(std::unique_ptr<User> u);
     ~Client();
 
     void connectToServer();
