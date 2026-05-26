@@ -8,8 +8,9 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-Client::Client() {
+Client::Client(User u) {
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+    user = u;
 }
 
 Client::~Client() {
@@ -34,10 +35,11 @@ void Client::connectToServer() {
     std::cout << "Connected to server\n";
 }
 
-void Client::sendMessage(const std::string& message) {
+void Client::sendMessage(const std::string& rawMessage) {
+    std::vector<uint8_t> msg = user.encryptData(rawMessage);
     send(clientSocket,
-         message.c_str(),
-         message.size(),
+         msg,
+         msg.size(),
          0);
 }
 
@@ -57,8 +59,10 @@ void Client::startReceiving() {
             if (bytes <= 0)
                 break;
 
+            std::string msg = user.decryptData(buffer);
+
             std::cout << "\nReceived: "
-                      << std::string(buffer, bytes)
+                      << msg
                       << std::endl;
         }
 

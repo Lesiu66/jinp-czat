@@ -4,10 +4,11 @@
 #include "CryptoManager.hpp"
 #include <string>
 #include <stdexcept>
+#include <memory>
 
 class User {
 public:
-    User(int ID, std::string Username, CryptoManager* Manager): id(ID), username(Username), manager(std::move(Manager)) {}
+    User(int ID, std::string Username, std::unique_ptr<CryptoManager> Manager): id(ID), username(Username), manager(std::move(Manager)) {}
 
     Bytes encryptData(const std::string& msg) {
         if (!manager) throw std::runtime_error("ERROR: No crypto manager!");
@@ -27,7 +28,7 @@ public:
 private:
     int id;
     std::string username;
-    CryptoManager* manager;
+    std::unique_ptr<CryptoManager> manager;
 };
 
 #endif // USER_HPP

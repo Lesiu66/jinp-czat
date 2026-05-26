@@ -1,10 +1,14 @@
 #include "Client.hpp"
 #include <iostream>
 #include <string>
+#include <cstdlib>
+#include <memory>
 
 int main() {
-
-    Client client;
+    std::string username;
+    std::cout << "Enter username:\n";
+    std::cin >> username;
+    Client client(User(rand(), username, std::make_unique<CryptoManager>(XORCryptoManager())));
 
     client.connectToServer();
     client.startReceiving();

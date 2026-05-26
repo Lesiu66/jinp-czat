@@ -3,18 +3,20 @@
 
 #include <string>
 #include <thread>
+#include "User.hpp"
 
 class Client {
 private:
     int clientSocket;
+    User user;
 
 public:
-    Client();
+    Client(User u);
     ~Client();
 
     void connectToServer();
 
-    void sendMessage(const std::string& message);
+    void sendMessage(const std::string& rawMessage);
 
     void startReceiving();
 };
