@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <chrono>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -35,12 +36,17 @@ void Client::connectToServer() {
     std::cout << "Connected to server\n";
 }
 
-void Client::sendMessage(const std::string& rawMessage) {
-    std::vector<uint8_t> msg = user->encryptData(rawMessage);
-    send(clientSocket,
-         &msg,
-         msg.size(),
-         0);
+void Client::sendMessage(const std::string& rawMessage, int receiverId) {
+    std::vector<uint8_t> encryptedMessage = user->encryptData(rawMessage);
+
+    auto now = std::chrono::system_clock::now();
+    int64_t currentTimestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+
+    Message message(encryptedMessage, user->getId(), receiverId, currentTimestamp);
+
+    std::vector<uint8_t> serializedPacket = message.serialize();
+
+    send(clientSocket, serializedPacket.data(), serializedPacket.size(), 0);
 }
 
 void Client::startReceiving() {
@@ -48,23 +54,23 @@ void Client::startReceiving() {
     std::thread([this]() {
 
         while (true) {
+            std::vector<uint8_t> buffer(1024);
 
-            std::vector<uint8_t> buffer;
-            buffer.resize(1024);
+            int bytes = recv(clientSocket, buffer.data(), buffer.size(), 0);
 
-            int bytes = recv(clientSocket,
-                             &buffer,
-                             sizeof(buffer),
-                             0);
+            if (bytes <= 0) break;
 
-            if (bytes <= 0)
-                break;
+            buffer.resize(bytes);
 
-            std::string msg = user->decryptData(buffer);
+            Message receivedMsg = Message::deserialize(buffer);
 
-            std::cout << "\nReceived: "
-                      << msg
-                      << std::endl;
+            std::vector<uint8_t> decrypted = user->decryptData(receivedMsg.getMessage);
+
+            std::string clearText(decryptedBytes.begin(), decryptedBytes.end());
+
+            std::cout << "\n[" << receivedMsg.getTimestampAsString() << "] "
+                      << "User " << receivedMsg.senderId << ": " 
+                      << clearText << std::endl;
         }
 
     }).detach();

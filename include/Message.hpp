@@ -5,35 +5,32 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
+#include <chrono>
+
 
 class Message {
 public:
-    Message(const std::vector<unsigned char>& msg, int sender, int receiver, const std::string& time)
+    Message(const std::vector<unsigned char>& msg, int sender, int receiver, int64_t time)
         : encryptedMessage(msg), senderId(sender), receiverId(receiver), timestamp(time) {}
 
     std::ostream& operator<<(std::ostream& os) {
-        os << "Sender: " << senderId << "\nReceiver: " << receiverId << "\nTimestamp: " << timestamp << "\nMessage: " << getEncryptedAsHexString();
+        os << "Sender: " << senderId << "\nReceiver: " << receiverId << "\nTimestamp: " << getTimestampAsString << "\nMessage: " << getEncryptedAsHexString();
         return os;
     }
 
-    std::string getEncryptedAsHexString() const {
-        std::stringstream ss;
-        
-        for (unsigned char bajt : encryptedMessage) {
-            ss << std::hex
-            << std::setw(2)
-            << std::setfill('0')
-            << (int)bajt;
-        }
-        
-        return ss.str();
-    }
+    std::string getEncryptedAsHexString() const;
+    std::string getTimestampAsString() const;
+
+    std::vector<unsigned char> getMessage() { return encryptedMessage; }
+
+    std::vector<uint8_t> serialize() const;
+    static Message deserialize(const std::vector<uint8_t>& buffer);
 
 private:
     std::vector<unsigned char> encryptedMessage;
     int senderId;
     int receiverId;
-    std::string timestamp;
+    int64_t timestamp;
 };
 
 #endif // MESSAGE_HPP
