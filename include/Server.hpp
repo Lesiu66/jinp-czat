@@ -25,4 +25,4 @@ private:
     void tryPairClients();
 };
 
-#endif
+#endif //SERVER_HPP

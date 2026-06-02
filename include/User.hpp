@@ -25,6 +25,10 @@ public:
         manager->generateKeys();
     }
 
+    int getId() const {
+        return id;
+    }
+    
 private:
     int id;
     std::string username;

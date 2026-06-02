@@ -18,6 +18,8 @@ find_package(Threads REQUIRED)
 set(SERVER_SOURCES
     src/server_main.cpp
     src/Server.cpp
+    src/Message.cpp
+    src/CryptoManager.cpp
 )
 
 add_executable(server ${SERVER_SOURCES})
@@ -36,6 +38,8 @@ target_link_libraries(server
 set(CLIENT_SOURCES
     src/client_main.cpp
     src/Client.cpp
+    src/Message.cpp
+    src/CryptoManager.cpp
 )
 
 add_executable(client ${CLIENT_SOURCES})
@@ -61,6 +65,8 @@ add_executable(test_chat
     tests/client_test.cpp
     src/Server.cpp
     src/Client.cpp
+    src/Message.cpp
+    src/CryptoManager.cpp
 )
 
 target_include_directories(test_chat PUBLIC include)

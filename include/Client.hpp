@@ -5,6 +5,7 @@
 #include <thread>
 #include <memory>
 #include "User.hpp"
+#include "Message.hpp"
 
 class Client {
 private:
@@ -22,4 +23,4 @@ public:
     void startReceiving();
 };
 
-#endif
+#endif //CLIENT_HPP

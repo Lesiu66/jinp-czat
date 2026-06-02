@@ -1,14 +1,29 @@
 #include "Client.hpp"
+#include "MessageHistory.hpp"
+
 #include <iostream>
 #include <string>
 #include <cstdlib>
 #include <memory>
+#include <limits>
+#include <fstream>
 
 int main() {
     std::string username;
+
     std::cout << "Enter username:\n";
     std::cin >> username;
-    Client client(std::make_unique<User>(User(rand(), username, std::make_unique<XORCryptoManager>(XORCryptoManager()))));
+
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    Client client(
+        std::make_unique<User>(
+            User(rand(),
+                 username,
+                 std::make_unique<XORCryptoManager>(XORCryptoManager()))
+        )
+    );
+
     client.user->generateUserKey();
 
     client.connectToServer();
@@ -16,10 +31,7 @@ int main() {
 
     std::string msg;
 
-    std::cout << "Enter message:\n";
-
     while (true) {
-
         std::getline(std::cin, msg);
 
         if (msg == "exit")
