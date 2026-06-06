@@ -20,6 +20,8 @@ public:
 
     void sendMessage(const std::string& rawMessage);
 
+    void generateSymmetricKey();
+
     void startReceiving();
 };
 

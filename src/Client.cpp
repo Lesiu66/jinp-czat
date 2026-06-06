@@ -10,6 +10,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+const size_t KEY_LENGTH = 32;
+
 Client::Client(std::unique_ptr<User> u) {
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);
     user = std::move(u);
@@ -37,13 +39,34 @@ void Client::connectToServer() {
     std::cout << "Connected to server\n";
 }
 
-void Client::sendMessage(const std::string& rawMessage) {
-    std::vector<uint8_t> encryptedMessage = user->encryptData(rawMessage);
+void Client::generateSymmetricKey() {
+    Bytes key = user->generateUserKey(KEY_LENGTH);
+    user->setUserKey(key);
 
     auto now = std::chrono::system_clock::now();
     int64_t currentTimestamp =
-        std::chrono::duration_cast<std::chrono::seconds>(
-            now.time_since_epoch()).count();
+        std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count() + 7200;
+    
+    Message message(KEY,
+                    key,
+                    user->getId(),
+                    0,
+                    currentTimestamp);
+
+    Bytes serializedPacket = message.serialize();
+
+    send(clientSocket,
+         serializedPacket.data(),
+         serializedPacket.size(),
+         0);
+}
+
+void Client::sendMessage(const std::string& rawMessage) {
+    Bytes encryptedMessage = user->encryptData(rawMessage);
+
+    auto now = std::chrono::system_clock::now();
+    int64_t currentTimestamp =
+        std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count() + 7200;
 
     Message message(TEXT_MESSAGE,
                     encryptedMessage,
@@ -51,7 +74,7 @@ void Client::sendMessage(const std::string& rawMessage) {
                     0,
                     currentTimestamp);
 
-    std::vector<uint8_t> serializedPacket = message.serialize();
+    Bytes serializedPacket = message.serialize();
 
     send(clientSocket,
          serializedPacket.data(),
@@ -65,7 +88,7 @@ void Client::startReceiving() {
 
         while (true) {
 
-            std::vector<uint8_t> buffer(1024);
+            Bytes buffer(1024);
 
             int bytes = recv(clientSocket,
                              buffer.data(),
@@ -79,12 +102,18 @@ void Client::startReceiving() {
 
             Message receivedMsg = Message::deserialize(buffer);
 
-            std::string clearText =
+            if(receivedMsg.getType == TEXT_MESSAGE) {
+                std::string clearText =
                 user->decryptData(receivedMsg.getMessage());
 
-            std::cout << "\n[" << receivedMsg.getTimestampAsString() << "] "
-                      << "User " << receivedMsg.getSenderId() << ": "
-                      << clearText << std::endl;
+                std::cout << "\n[" << receivedMsg.getTimestampAsString() << "] "
+                        << "User " << receivedMsg.getSenderId() << ": "
+                        << clearText << std::endl;
+            }
+            else {
+                user->setUserKey(receivedMsg.getMessage);
+            }
+            
         }
 
     }).detach();

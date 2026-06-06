@@ -17,20 +17,20 @@ public:
     Message(MessageType type, const std::vector<unsigned char>& msg, int sender, int receiver, int64_t time)
         : type(type), encryptedMessage(msg), senderId(sender), receiverId(receiver), timestamp(time) {}
 
-std::ostream& operator<<(std::ostream& os) {
-    os << "Sender: " << senderId
-       << "\nReceiver: " << receiverId
-       << "\nTimestamp: " << getTimestampAsString()
-       << "\nMessage: " << getEncryptedAsHexString();
+    std::ostream& operator<<(std::ostream& os) {
+        os << "Sender: " << senderId
+        << "\nReceiver: " << receiverId
+        << "\nTimestamp: " << getTimestampAsString()
+        << "\nMessage: " << getEncryptedAsHexString();
 
-    return os;
-}
+        return os;
+    }
 
     std::string getEncryptedAsHexString() const;
     std::string getTimestampAsString() const;
 
     std::vector<unsigned char> getMessage() { return encryptedMessage; }
-
+    MessageType getType() { return type; }
 
     int getSenderId() const {
         return senderId;
