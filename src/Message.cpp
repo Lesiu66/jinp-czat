@@ -38,11 +38,13 @@ std::vector<uint8_t> Message::serialize() const
 
     uint32_t vecSize = static_cast<uint32_t>(encryptedMessage.size());
 
-    size_t totalSize = sizeof(vecSize) + sizeof(senderId) + sizeof(receiverId) + sizeof(timestamp) + vecSize;
+    size_t totalSize = sizeof(type) + sizeof(vecSize) + sizeof(senderId) + sizeof(receiverId) + sizeof(timestamp) + vecSize;
     buffer.resize(totalSize);
 
     size_t offset = 0;
 
+    std::memcpy(buffer.data() + offset, &type, sizeof(type));
+    offset += sizeof(type);
     std::memcpy(buffer.data() + offset, &vecSize, sizeof(vecSize));
     offset += sizeof(vecSize);
     std::memcpy(buffer.data() + offset, &senderId, sizeof(senderId));
@@ -60,9 +62,10 @@ std::vector<uint8_t> Message::serialize() const
 Message Message::deserialize(const std::vector<uint8_t> &buffer)
 {
     if (buffer.size() < 20) {
-        return Message({}, 0, 0, 0);
+        return Message(TEXT_MESSAGE, {}, 0, 0, 0);
     }
 
+    uint8_t rawType = 0;
     uint32_t vecSize = 0;
     int32_t sId = 0;
     int32_t rId = 0;
@@ -71,6 +74,7 @@ Message Message::deserialize(const std::vector<uint8_t> &buffer)
 
     size_t offset = 0;
 
+    std::memcpy(&rawType, buffer.data() + offset, sizeof(rawType));                     offset += sizeof(rawType);
     std::memcpy(&vecSize, buffer.data() + offset, sizeof(vecSize));               offset += sizeof(vecSize);
     std::memcpy(&sId, buffer.data() + offset, sizeof(sId));                       offset += sizeof(sId);
     std::memcpy(&rId, buffer.data() + offset, sizeof(rId));                       offset += sizeof(rId);
@@ -81,5 +85,5 @@ Message Message::deserialize(const std::vector<uint8_t> &buffer)
         std::memcpy(encMsg.data(), buffer.data() + offset, vecSize);
     }
 
-    return Message(encMsg, sId, rId, tStamp);
+    return Message(static_cast<MessageType>(rawType), encMsg, sId, rId, tStamp);
 }

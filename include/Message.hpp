@@ -7,11 +7,15 @@
 #include <sstream>
 #include <chrono>
 
+enum MessageType : uint8_t {
+    TEXT_MESSAGE,
+    KEY
+};
 
 class Message {
 public:
-    Message(const std::vector<unsigned char>& msg, int sender, int receiver, int64_t time)
-        : encryptedMessage(msg), senderId(sender), receiverId(receiver), timestamp(time) {}
+    Message(MessageType type, const std::vector<unsigned char>& msg, int sender, int receiver, int64_t time)
+        : type(type), encryptedMessage(msg), senderId(sender), receiverId(receiver), timestamp(time) {}
 
 std::ostream& operator<<(std::ostream& os) {
     os << "Sender: " << senderId
@@ -40,6 +44,7 @@ std::ostream& operator<<(std::ostream& os) {
     static Message deserialize(const std::vector<uint8_t>& buffer);
 
 private:
+    MessageType type;
     std::vector<unsigned char> encryptedMessage;
     int senderId;
     int receiverId;

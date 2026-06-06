@@ -10,7 +10,6 @@ Bytes XORCryptoManager::generateKeys(size_t length) {
     }
 
     return newKey;
-    //newKey.assign(length, 0x22);
 }
 
 Bytes XORCryptoManager::encrypt(const std::string& msg) {

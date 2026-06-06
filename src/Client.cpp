@@ -45,7 +45,8 @@ void Client::sendMessage(const std::string& rawMessage) {
         std::chrono::duration_cast<std::chrono::seconds>(
             now.time_since_epoch()).count();
 
-    Message message(encryptedMessage,
+    Message message(TEXT_MESSAGE,
+                    encryptedMessage,
                     user->getId(),
                     0,
                     currentTimestamp);
