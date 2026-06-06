@@ -20,9 +20,9 @@ public:
         return manager->decrypt(msg);
     }
 
-    void generateUserKey() {
+    void generateUserKey(size_t length) {
         if (!manager) throw std::runtime_error("ERROR: No crypto manager!");
-        manager->generateKeys();
+        manager->setKey(manager->generateKeys(length));
     }
 
     int getId() const {

@@ -24,7 +24,7 @@ int main() {
         )
     );
 
-    client.user->generateUserKey();
+    client.user->generateUserKey(32);
 
     client.connectToServer();
     client.startReceiving();
