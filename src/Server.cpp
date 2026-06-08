@@ -70,8 +70,6 @@ void Server::tryPairClients() {
     pairMap[a] = b;
     pairMap[b] = a;
 
-    clients[a].generateSymmetricKey();
-
     std::cout << "Paired: " << a << " <-> " << b << "\n";
 }
 

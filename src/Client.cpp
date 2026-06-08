@@ -102,7 +102,7 @@ void Client::startReceiving() {
 
             Message receivedMsg = Message::deserialize(buffer);
 
-            if(receivedMsg.getType == TEXT_MESSAGE) {
+            if(receivedMsg.getType() == TEXT_MESSAGE) {
                 std::string clearText =
                 user->decryptData(receivedMsg.getMessage());
 
@@ -111,7 +111,7 @@ void Client::startReceiving() {
                         << clearText << std::endl;
             }
             else {
-                user->setUserKey(receivedMsg.getMessage);
+                user->setUserKey(receivedMsg.getMessage());
             }
             
         }
