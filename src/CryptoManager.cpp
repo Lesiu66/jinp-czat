@@ -1,7 +1,7 @@
 #include "CryptoManager.hpp"
 #include <stdexcept>
 
-Bytes XORCryptoManager::generateKeys(size_t length) {
+Bytes CryptoManager::generateKeys(size_t length = 32) {
     Bytes newKey;
     newKey.resize(length);
 
@@ -39,17 +39,6 @@ std::string XORCryptoManager::decrypt(const Bytes& msg) {
     }
 
     return bytesToString(decryptedData);
-}
-
-Bytes AESCryptoManager::generateKeys(size_t length) {
-    Bytes newKey;
-    newKey.resize(32);
-
-    if (RAND_bytes(newKey.data(), static_cast<int>(newKey.size())) != 1) {
-        throw std::runtime_error("OpenSSL ERROR: Could not generate key!");
-    }
-
-    return newKey;
 }
 
 Bytes AESCryptoManager::encrypt(const std::string& msg) {

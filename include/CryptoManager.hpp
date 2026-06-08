@@ -14,7 +14,7 @@ class CryptoManager {
 public:
     virtual ~CryptoManager() = default; 
 
-    virtual Bytes generateKeys(size_t length) = 0;
+    Bytes generateKeys(size_t length);
 
     virtual Bytes encrypt(const std::string& msg) = 0;
 
@@ -37,14 +37,12 @@ protected:
 
 class XORCryptoManager : public CryptoManager {
 public:
-    Bytes generateKeys(size_t length) override;
     Bytes encrypt(const std::string& msg) override;
     std::string decrypt(const Bytes& msg) override;
 };
 
 class AESCryptoManager : public CryptoManager {
 public:
-    Bytes generateKeys(size_t length) override;
     Bytes encrypt(const std::string& msg) override;
     std::string decrypt(const Bytes& msg) override;
 };
