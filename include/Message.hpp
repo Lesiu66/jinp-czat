@@ -10,7 +10,8 @@
 enum MessageType : uint8_t {
     TEXT_MESSAGE,
     KEY,
-    PAIR_READY
+    PAIR_READY,
+    INIT
 };
 
 class Message {

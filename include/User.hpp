@@ -40,6 +40,8 @@ public:
 
     return manager->getKey();
     }
+
+    std::string getUsername() const { return username; }
     
 private:
     int id;

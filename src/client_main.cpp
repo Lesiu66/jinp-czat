@@ -1,5 +1,4 @@
 #include "Client.hpp"
-#include "MessageHistory.hpp"
 
 #include <iostream>
 #include <string>
@@ -9,6 +8,8 @@
 #include <fstream>
 
 int main() {
+    srand(time(nullptr));
+    
     std::string username;
 
     std::cout << "Enter username:\n";
