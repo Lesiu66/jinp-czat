@@ -42,4 +42,11 @@ public:
     std::string decrypt(const Bytes& msg) override;
 };
 
+class AESCryptoManager : public CryptoManager {
+public:
+    Bytes generateKeys(size_t length) override;
+    Bytes encrypt(const std::string& msg) override;
+    std::string decrypt(const Bytes& msg) override;
+};
+
 #endif // CRYPTOMANAGER_HPP
