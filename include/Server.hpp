@@ -21,7 +21,7 @@ private:
 
     void acceptClients();
     void handleClient(int clientSocket);
-    void forwardMessage(int senderSocket, const std::string& msg);
+    void forwardMessage(int senderSocket, const char* buffer, int size);
     void tryPairClients();
 };
 

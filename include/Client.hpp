@@ -10,6 +10,7 @@
 class Client {
 private:
     int clientSocket;
+    bool keyReady = false;
 
 public:
     std::unique_ptr<User> user;

@@ -33,6 +33,13 @@ public:
     int getId() const {
         return id;
     }
+
+    Bytes getUserKey() const {
+    if (!manager)
+        throw std::runtime_error("ERROR: No crypto manager!");
+
+    return manager->getKey();
+    }
     
 private:
     int id;

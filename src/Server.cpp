@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Message.hpp"
 
 #include <iostream>
 #include <algorithm>
@@ -70,9 +71,12 @@ void Server::tryPairClients() {
     pairMap[a] = b;
     pairMap[b] = a;
 
-    clients[a].generateSymmetricKey();
-
     std::cout << "Paired: " << a << " <-> " << b << "\n";
+
+    Message pairMsg(PAIR_READY, {}, 0, 0, 0);
+    std::vector<uint8_t> serialized = pairMsg.serialize();
+
+    send(a, serialized.data(), serialized.size(), 0);
 }
 
 void Server::handleClient(int clientSocket) {
@@ -101,19 +105,15 @@ void Server::handleClient(int clientSocket) {
             return;
         }
 
-        std::string msg(buffer, bytes);
-
-        forwardMessage(clientSocket, msg);
+        forwardMessage(clientSocket, buffer, bytes);
     }
 }
 
-void Server::forwardMessage(int senderSocket,
-                            const std::string& msg)
-{
+void Server::forwardMessage(int senderSocket, const char* buffer, int size) {
     if (pairMap.find(senderSocket) == pairMap.end())
         return;
 
     int target = pairMap[senderSocket];
 
-    send(target, msg.c_str(), msg.size(), 0);
+    send(target, buffer, size, 0);
 }

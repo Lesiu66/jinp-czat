@@ -40,7 +40,9 @@ void Client::connectToServer() {
 }
 
 void Client::generateSymmetricKey() {
-    Bytes key = user->generateUserKey(KEY_LENGTH);
+    user->generateUserKey(KEY_LENGTH);
+    Bytes key = user->getUserKey();
+    keyReady = true;
     user->setUserKey(key);
 
     auto now = std::chrono::system_clock::now();
@@ -62,6 +64,10 @@ void Client::generateSymmetricKey() {
 }
 
 void Client::sendMessage(const std::string& rawMessage) {
+    if (!keyReady) {
+        return;
+    }
+
     Bytes encryptedMessage = user->encryptData(rawMessage);
 
     auto now = std::chrono::system_clock::now();
@@ -102,16 +108,21 @@ void Client::startReceiving() {
 
             Message receivedMsg = Message::deserialize(buffer);
 
-            if(receivedMsg.getType == TEXT_MESSAGE) {
-                std::string clearText =
+            if (receivedMsg.getType() == TEXT_MESSAGE) {
+                std::string clearText = 
                 user->decryptData(receivedMsg.getMessage());
-
+                
                 std::cout << "\n[" << receivedMsg.getTimestampAsString() << "] "
-                        << "User " << receivedMsg.getSenderId() << ": "
-                        << clearText << std::endl;
+                          << "User " << receivedMsg.getSenderId() << ": "
+                          << clearText << std::endl;
+            } 
+            else if (receivedMsg.getType() == KEY) {
+                user->setUserKey(receivedMsg.getMessage());
+                keyReady = true;
+
             }
-            else {
-                user->setUserKey(receivedMsg.getMessage);
+            else if (receivedMsg.getType() == PAIR_READY) {
+                generateSymmetricKey();
             }
             
         }

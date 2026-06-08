@@ -17,11 +17,7 @@ int main() {
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     Client client(
-        std::make_unique<User>(
-            User(rand(),
-                 username,
-                 std::make_unique<XORCryptoManager>(XORCryptoManager()))
-        )
+        std::make_unique<User>(rand(), username, std::make_unique<XORCryptoManager>())
     );
 
     client.connectToServer();
