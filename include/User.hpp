@@ -24,7 +24,6 @@ public:
         if (!manager) throw std::runtime_error("ERROR: No crypto manager!");
         Bytes key = manager->generateKeys(length);
         manager->setKey(key);
-        return key;
     }
 
     void setUserKey(const Bytes& key) {
