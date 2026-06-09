@@ -1,5 +1,6 @@
 #include "CryptoManager.hpp"
 #include <stdexcept>
+#include <iostream>
 
 Bytes CryptoManager::generateKeys(size_t length = 32) {
     Bytes newKey;
@@ -52,14 +53,17 @@ Bytes AESCryptoManager::encrypt(const std::string& msg) {
 
     EVP_CIPHER_CTX *ctx;
     ctx = EVP_CIPHER_CTX_new();
-    EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key.data(), iv.data());
+    EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, reinterpret_cast<const unsigned char*>(key.data()), reinterpret_cast<const unsigned char*>(iv.data()));
     EVP_EncryptUpdate(ctx, encryptedMsg.data(), &outLen1, data.data(), data.size());
     EVP_EncryptFinal_ex(ctx, encryptedMsg.data() + outLen1, &outLen2);
 
     encryptedMsg.resize(outLen1 + outLen2);
     EVP_CIPHER_CTX_free(ctx);
 
-    return encryptedMsg;
+    Bytes finalPacket = iv;
+    finalPacket.insert(finalPacket.end(), encryptedMsg.begin(), encryptedMsg.end());
+
+    return finalPacket;
 }
 
 std::string AESCryptoManager::decrypt(const Bytes& msg) {
@@ -76,10 +80,19 @@ std::string AESCryptoManager::decrypt(const Bytes& msg) {
 
     EVP_CIPHER_CTX *ctx;
     ctx = EVP_CIPHER_CTX_new();
-    EVP_DecryptInit_ex(ctx, EVP_aes_128_cbc(), NULL, key.data(), iv.data());
-    EVP_DecryptUpdate(ctx, plaintext.data(), &outLen1, encryptedMsg.data(), encryptedMsg.size());
-    EVP_DecryptFinal_ex(ctx, plaintext.data() + outLen1, &outLen2);
+    if (EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, reinterpret_cast<const unsigned char*>(key.data()), reinterpret_cast<const unsigned char*>(iv.data())) != 1) {
+        std::cerr << "[OpenSSL] Błąd inicjalizacji algorytmu!" << std::endl;
+    }
+
+    if (EVP_DecryptUpdate(ctx, plaintext.data(), &outLen1, encryptedMsg.data(), encryptedMsg.size()) != 1) {
+        std::cerr << "[OpenSSL] Błąd w trakcie deszyfracji (Update)!" << std::endl;
+    }
+
+    if (EVP_DecryptFinal_ex(ctx, plaintext.data() + outLen1, &outLen2) != 1) {
+        std::cerr << "[OpenSSL] Błąd krytyczny: Niepoprawny padding! Klucz, IV lub dane są uszkodzone." << std::endl;
+    }
 
     plaintext.resize(outLen1 + outLen2);
+    std::cout << "Odszyfrowano bajtów: " << plaintext.size() << std::endl;
     return std::string(plaintext.begin(), plaintext.end());
 }
