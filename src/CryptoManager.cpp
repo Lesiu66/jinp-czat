@@ -97,6 +97,5 @@ std::string AESCryptoManager::decrypt(const Bytes& msg) {
     }
 
     plaintext.resize(outLen1 + outLen2);
-    std::cout << "Odszyfrowano bajtów: " << plaintext.size() << std::endl;
     return std::string(plaintext.begin(), plaintext.end());
 }
