@@ -47,7 +47,11 @@ Bytes AESCryptoManager::encrypt(const std::string& msg) {
     RAND_bytes(iv.data(), 16);
 
     Bytes data = stringToBytes(msg);
-    Bytes encryptedMsg(data.size() + 16);
+    Bytes encryptedMsg(16 + data.size() + 16);
+
+    for (int i = 0; i < 16; i++) {
+        encryptedMsg[i] = iv[i];
+    }
 
     int outLen1 = 0, outLen2 = 0;
 
@@ -72,7 +76,7 @@ std::string AESCryptoManager::decrypt(const Bytes& msg) {
     }
 
     Bytes iv(msg.begin(), msg.begin() + 16);
-    
+
     Bytes encryptedMsg(msg.begin() + 16, msg.end());
 
     Bytes plaintext(encryptedMsg.size());

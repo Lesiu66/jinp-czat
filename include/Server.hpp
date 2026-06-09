@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <map>
 
 class Server {
 public:
@@ -14,10 +15,9 @@ public:
 
 private:
     int serverSocket;
-
     std::vector<int> clients;
-
     std::unordered_map<int, int> pairMap;
+    std::map<int, std::string> clientNames;
 
     void acceptClients();
     void handleClient(int clientSocket);

@@ -22,7 +22,9 @@ public:
 
     void generateUserKey(size_t length) {
         if (!manager) throw std::runtime_error("ERROR: No crypto manager!");
-        manager->setKey(manager->generateKeys(length));
+        Bytes key = manager->generateKeys(length);
+        manager->setKey(key);
+        return key;
     }
 
     void setUserKey(const Bytes& key) {
@@ -40,6 +42,8 @@ public:
 
     return manager->getKey();
     }
+
+    std::string getUsername() const { return username; }
     
 private:
     int id;

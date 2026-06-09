@@ -37,6 +37,9 @@ void Client::connectToServer() {
     }
 
     std::cout << "Connected to server\n";
+
+    std::string name = user->getUsername();
+    send(clientSocket, name.c_str(), name.size(), 0);
 }
 
 void Client::generateSymmetricKey() {
@@ -57,10 +60,7 @@ void Client::generateSymmetricKey() {
 
     Bytes serializedPacket = message.serialize();
 
-    send(clientSocket,
-         serializedPacket.data(),
-         serializedPacket.size(),
-         0);
+    send(clientSocket, serializedPacket.data(), serializedPacket.size(), 0);
 }
 
 void Client::sendMessage(const std::string& rawMessage) {
@@ -68,7 +68,8 @@ void Client::sendMessage(const std::string& rawMessage) {
         return;
     }
 
-    Bytes encryptedMessage = user->encryptData(rawMessage);
+    std::string fullMessage = user->getUsername() + "|" + rawMessage;
+    Bytes encryptedMessage = user->encryptData(fullMessage);
 
     auto now = std::chrono::system_clock::now();
     int64_t currentTimestamp =
@@ -82,10 +83,10 @@ void Client::sendMessage(const std::string& rawMessage) {
 
     Bytes serializedPacket = message.serialize();
 
-    send(clientSocket,
-         serializedPacket.data(),
-         serializedPacket.size(),
-         0);
+    send(clientSocket, serializedPacket.data(), serializedPacket.size(), 0);
+
+    std::cout << "[" << message.getTimestampAsString() << "] " 
+            << user->getUsername() << ": " << rawMessage << std::endl;
 }
 
 void Client::startReceiving() {
@@ -111,10 +112,21 @@ void Client::startReceiving() {
             if (receivedMsg.getType() == TEXT_MESSAGE) {
                 std::string clearText = 
                 user->decryptData(receivedMsg.getMessage());
-                
-                std::cout << "\n[" << receivedMsg.getTimestampAsString() << "] "
-                          << "User " << receivedMsg.getSenderId() << ": "
-                          << clearText << std::endl;
+
+                size_t separatorPos = clearText.find('|');
+
+                if (separatorPos != std::string::npos) {
+                    std::string senderName = clearText.substr(0, separatorPos);
+                    std::string actualMessage = clearText.substr(separatorPos + 1);
+
+                    std::cout << "\n[" << receivedMsg.getTimestampAsString() << "] "
+                              << senderName << ": " << actualMessage << std::endl;
+                } 
+                else {
+                    std::cout << "\n[" << receivedMsg.getTimestampAsString() << "] "
+                              << "User " << receivedMsg.getSenderId() << ": "
+                              << clearText << std::endl;
+                }
             } 
             else if (receivedMsg.getType() == KEY) {
                 user->setUserKey(receivedMsg.getMessage());

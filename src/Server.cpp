@@ -49,7 +49,18 @@ void Server::acceptClients() {
 
         if (clientSocket < 0) continue;
 
-        std::cout << "Client connected: " << clientSocket << "\n";
+        char nameBuf[1024] = {0};
+        int bytes = recv(clientSocket, nameBuf, sizeof(nameBuf) - 1, 0);
+
+        if (bytes > 0) {
+            std::string username(nameBuf, bytes);
+            clientNames[clientSocket] = username;
+
+            std::cout << "Client connected: " << username << "\n";
+        } else {
+            close(clientSocket);
+            continue;
+        }
 
         clients.push_back(clientSocket);
 
@@ -71,7 +82,7 @@ void Server::tryPairClients() {
     pairMap[a] = b;
     pairMap[b] = a;
 
-    std::cout << "Paired: " << a << " <-> " << b << "\n";
+    std::cout << "Paired: " << clientNames[a] << " <-> " << clientNames[b] << "\n";
 
     Message pairMsg(PAIR_READY, {}, 0, 0, 0);
     std::vector<uint8_t> serialized = pairMsg.serialize();
@@ -91,8 +102,8 @@ void Server::handleClient(int clientSocket) {
                          0);
 
         if (bytes <= 0) {
-
-            std::cout << "Client disconnected\n";
+            std::string username = clientNames[clientSocket];
+            std::cout << "Client disconnected: " << username << "\n";
 
             clients.erase(std::remove(clients.begin(),
                                        clients.end(),
@@ -100,7 +111,7 @@ void Server::handleClient(int clientSocket) {
                           clients.end());
 
             pairMap.erase(clientSocket);
-
+            clientNames.erase(clientSocket);
             close(clientSocket);
             return;
         }
