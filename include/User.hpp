@@ -2,13 +2,15 @@
 #define USER_HPP
 
 #include "CryptoManager.hpp"
+#include "MessageHistory.hpp"
 #include <string>
 #include <stdexcept>
 #include <memory>
 
 class User {
 public:
-    User(int ID, std::string Username, std::unique_ptr<CryptoManager> Manager): id(ID), username(Username), manager(std::move(Manager)) {}
+    User(int ID, std::string Username, std::unique_ptr<CryptoManager> Manager, std::unique_ptr<MessageHistory> History): 
+        id(ID), username(Username), manager(std::move(Manager)), history(std::move(History)) {}
 
     Bytes encryptData(const std::string& msg) {
         if (!manager) throw std::runtime_error("ERROR: No crypto manager!");
@@ -36,14 +38,15 @@ public:
     }
 
     Bytes getUserKey() const {
-    if (!manager)
-        throw std::runtime_error("ERROR: No crypto manager!");
+        if (!manager)
+            throw std::runtime_error("ERROR: No crypto manager!");
 
-    return manager->getKey();
+        return manager->getKey();
     }
 
     std::string getUsername() const { return username; }
-    
+
+    std::unique_ptr<MessageHistory> history;
 private:
     int id;
     std::string username;

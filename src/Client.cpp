@@ -80,6 +80,8 @@ void Client::sendMessage(const std::string& rawMessage) {
                     user->getId(),
                     0,
                     currentTimestamp);
+    
+    user->history->addMessage(rawMessage, user->getId(), 0, currentTimestamp);
 
     Bytes serializedPacket = message.serialize();
 
@@ -127,6 +129,8 @@ void Client::startReceiving() {
                               << "User " << receivedMsg.getSenderId() << ": "
                               << clearText << std::endl;
                 }
+
+                user->history->addMessage(clearText, receivedMsg.getSenderId(), user->getId(), receivedMsg.getTimestamp());
             } 
             else if (receivedMsg.getType() == KEY) {
                 user->setUserKey(receivedMsg.getMessage());

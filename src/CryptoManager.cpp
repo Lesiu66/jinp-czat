@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <iostream>
 
-Bytes CryptoManager::generateKeys(size_t length = 32) {
+Bytes CryptoManager::generateKeys(size_t length) {
     Bytes newKey;
     newKey.resize(length);
 
@@ -98,4 +98,13 @@ std::string AESCryptoManager::decrypt(const Bytes& msg) {
 
     plaintext.resize(outLen1 + outLen2);
     return std::string(plaintext.begin(), plaintext.end());
+}
+
+Bytes CryptoManager::generateKeyFromPassword(const std::string& password, size_t length) {
+    Bytes passwordKey(length);
+    unsigned int len = 0;
+
+    EVP_Digest(password.data(), password.size(), passwordKey.data(), &len, EVP_sha256(), NULL);
+
+    return passwordKey;
 }

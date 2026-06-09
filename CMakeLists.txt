@@ -19,6 +19,7 @@ set(SERVER_SOURCES
     src/server_main.cpp
     src/Server.cpp
     src/Message.cpp
+    src/MessageHistory.cpp
     src/CryptoManager.cpp
 )
 
@@ -39,6 +40,7 @@ set(CLIENT_SOURCES
     src/client_main.cpp
     src/Client.cpp
     src/Message.cpp
+    src/MessageHistory.cpp
     src/CryptoManager.cpp
 )
 
@@ -66,6 +68,7 @@ add_executable(test_chat
     src/Server.cpp
     src/Client.cpp
     src/Message.cpp
+    src/MessageHistory.cpp
     src/CryptoManager.cpp
 )
 

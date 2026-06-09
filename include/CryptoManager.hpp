@@ -14,7 +14,9 @@ class CryptoManager {
 public:
     virtual ~CryptoManager() = default; 
 
-    Bytes generateKeys(size_t length);
+    Bytes generateKeys(size_t length = 32);
+
+    Bytes generateKeyFromPassword(const std::string& password, size_t length = 32);
 
     virtual Bytes encrypt(const std::string& msg) = 0;
 

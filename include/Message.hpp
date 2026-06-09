@@ -19,11 +19,11 @@ public:
     Message(MessageType type, const std::vector<unsigned char>& msg, int sender, int receiver, int64_t time)
         : type(type), encryptedMessage(msg), senderId(sender), receiverId(receiver), timestamp(time) {}
 
-    std::ostream& operator<<(std::ostream& os) {
-        os << "Sender: " << senderId
-        << "\nReceiver: " << receiverId
-        << "\nTimestamp: " << getTimestampAsString()
-        << "\nMessage: " << getEncryptedAsHexString();
+    friend std::ostream& operator<<(std::ostream& os, const Message& msg) {
+        os << msg.senderId << " "
+       << msg.receiverId << " "
+       << msg.timestamp << " "
+       << msg.getEncryptedAsHexString();
 
         return os;
     }
@@ -40,6 +40,10 @@ public:
 
     int getReceiverId() const {
         return receiverId;
+    }
+
+    int64_t getTimestamp() const {
+        return timestamp;
     }
 
     std::vector<uint8_t> serialize() const;

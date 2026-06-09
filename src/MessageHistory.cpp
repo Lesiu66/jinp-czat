@@ -1,7 +1,9 @@
 #include "MessageHistory.hpp"
 
-void MessageHistory::addMessage(Message msg) {
-    history.push_back(msg);
+void MessageHistory::addMessage(const std::string& msg, int senderId, int receiverId, int64_t timestamp) {
+    Bytes encryptedMsg = manager->encrypt(msg);
+    Message message(TEXT_MESSAGE, encryptedMsg, senderId, receiverId, timestamp);
+    history.push_back(message);
 }
 
 std::vector<Message> MessageHistory::getHistory() {
@@ -10,12 +12,12 @@ std::vector<Message> MessageHistory::getHistory() {
 
 void MessageHistory::saveToFile(std::ostream& file) {
     for (const auto& msg : history) {
-        file<<&msg<<std::endl;
+        file<<msg<<std::endl;
     }
 }
 
-std::vector<unsigned char> hexToBytes(const std::string& hex) {
-    std::vector<unsigned char> bytes;
+Bytes hexToBytes(const std::string& hex) {
+    Bytes bytes;
     for (size_t i = 0; i < hex.length(); i += 2) {
         std::string byteString = hex.substr(i, 2);
         unsigned char byte = (unsigned char) strtol(byteString.c_str(), nullptr, 16);
@@ -36,16 +38,38 @@ void MessageHistory::loadFromFile(std::istream& file) {
         int sender;
         int receiver;
         std::string date;
-        std::string time;
+        int64_t timestamp;
         std::string hexData;
 
-        if (ss >> sender >> receiver >> date >> time >> hexData) {
-            std::string fullTimestamp = date + " " + time;
-            std::vector<unsigned char> decodedMessage = hexToBytes(hexData);
+        if (ss >> sender >> receiver >> timestamp >> hexData) {
+            Bytes decodedMessage = hexToBytes(hexData);
 
-            Message msg(decodedMessage, sender, receiver, fullTimestamp);
+            Message msg(TEXT_MESSAGE ,decodedMessage, sender, receiver, timestamp);
             
             history.push_back(msg);
         }
     }
+}
+
+void MessageHistory::displayHistory() {
+    if (history.size() < 1) return;
+    std::cout << "--- Message history ---" << std::endl;
+    for (auto& msg : history) {
+        std::string clearText = manager->decrypt(msg.getMessage());
+
+        size_t separatorPos = clearText.find('|');
+
+        if (separatorPos != std::string::npos) {
+            std::string senderName = clearText.substr(0, separatorPos);
+            std::string actualMessage = clearText.substr(separatorPos + 1);
+            std::cout << "\n[" << msg.getTimestampAsString() << "] "
+                      << senderName << ": " << actualMessage << std::endl;
+        } 
+        else {
+            std::cout << "\n[" << msg.getTimestampAsString() << "] "
+                      << "User " << msg.getSenderId() << ": "
+                      << clearText << std::endl;
+        }
+    }
+    std::cout << "--- End of History ---" << std::endl;
 }
